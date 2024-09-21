@@ -40,6 +40,8 @@
    StyleDecorationZoomPolicy
  } from 'yfiles'
  
+ //use styledecorationzoompolicy if we want to change the render feature for a single node maybe 
+
  export class GraphSearch {
    graphComponent: GraphComponent
    searchHighlightIndicatorManager: GraphHighlightIndicatorManager

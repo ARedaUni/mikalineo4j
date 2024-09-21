@@ -62,7 +62,7 @@ import {
   WebGL2GraphModelManager,
   WebGL2SelectionIndicatorManager
 } from 'yfiles'
-
+import { GraphSearch } from './utils/Graphsearch'
 import * as CodeMirror from 'codemirror'
 import 'codemirror/mode/cypher/cypher'
 import 'codemirror/lib/codemirror.css'
@@ -91,15 +91,61 @@ let nodes: Node[] = []
 
 let edges: Relationship[] = []
 
+// MY GRAPH SEARCH IMPLEMENTATION
+let graphSearch: CustomGraphSearch
+
+class CustomGraphSearch extends GraphSearch {
+  /**
+   * Returns whether the given node is a match when searching for the given text.
+   * This method searches the matching string to the labels and the tags of the nodes.
+   * @param node The node to be examined
+   * @param text The text to be queried
+   * @returns True if the node matches the text, false otherwise
+   */
+  matches(node: INode, text: string): boolean {
+    const lowercaseText = text.toLowerCase()
+    // the icon property does not have to be matched
+    if (
+      node.tag &&
+      Object.getOwnPropertyNames(node.tag).some(
+        (prop) =>
+          prop !== 'icon' &&
+          node.tag[prop] &&
+          node.tag[prop].toString().toLowerCase().indexOf(lowercaseText) !== -1
+      )
+    ) {
+      return true
+    }
+    return node.labels.some((label) => label.text.toLowerCase().indexOf(lowercaseText) !== -1)
+  }
+}
+
+function initializeGraphSearch(): void {
+  graphSearch = new CustomGraphSearch(graphComponent)
+  graphSearch.highlightStyle = new IndicatorNodeStyleDecorator({
+    wrapped: new ShapeNodeStyle({
+      shape: ShapeNodeShape.ROUND_RECTANGLE,
+      stroke: '3px red',
+      fill: null
+    }),
+    padding: 5
+  })
+  GraphSearch.registerEventListener(searchBox, graphSearch)
+}
+
+
 // get hold of some UI elements
-const labelsContainer = document.querySelector<HTMLParagraphElement>('#labels')!
+
+const labelsContainer = document.querySelector<HTMLParagraphElement>('#labelsContainer')!
+const detailsContainer = document.querySelector<HTMLDivElement>('#detailsContainer')!
 const selectedNodeContainer = document.querySelector<HTMLDivElement>('#selected-node-container')!
 const propertyTable = document.querySelector<HTMLTableElement>('#propertyTable')!
-const propertyTableHeader = propertyTable.firstElementChild as HTMLTableHeaderCellElement
+//const propertyTableHeader = propertyTable.firstElementChild as HTMLTableHeaderCellElement
 const numNodesInput = document.querySelector<HTMLInputElement>('#numNodes')!
 const numLabelsInput = document.querySelector<HTMLInputElement>('#numLabels')!
 const showEdgeLabelsCheckbox = document.querySelector<HTMLInputElement>('#showEdgeLabels')!
 const queryErrorContainer = document.querySelector<HTMLPreElement>('#queryError')!
+const searchBox = document.querySelector<HTMLInputElement>('#search-box')!
 
 /**
  * Runs the demo.
@@ -120,6 +166,7 @@ async function run(): Promise<void> {
 
   initializeGraphDefaults()
   initializeHighlighting()
+  initializeGraphSearch()
   createInputMode()
   initializeUI()
 }
@@ -146,6 +193,8 @@ function initializeGraphDefaults(): void {
   graph.edgeDefaults.style = createDemoEdgeStyle()
   graph.edgeDefaults.labels.layoutParameter = new EdgePathLabelModel().createDefaultParameter()
 }
+
+
 
 /**
  * Creates highlight styling. See the GraphViewer demo for more details.
@@ -233,10 +282,11 @@ function createInputMode(): void {
  */
 function onCurrentItemChanged(): void {
   // clear the current display
-  labelsContainer.innerHTML = ''
-  while (propertyTable.lastChild != null) {
-    propertyTable.removeChild(propertyTable.lastChild)
-  }
+  labelsContainer.innerHTML = '';
+  detailsContainer.innerHTML = '';
+  // while (propertyTable.lastChild != null) {
+  //   propertyTable.removeChild(propertyTable.lastChild)
+  // }
 
   const currentItem = graphComponent.currentItem
   const isNode = currentItem instanceof INode
@@ -246,6 +296,7 @@ function onCurrentItemChanged(): void {
    
     // show all labels of the current node
     labelsContainer.textContent = node.tag.labels.join(', ')
+    
     const properties = node.tag.properties
     console.log(properties, node)
     //grab coords of the node and zoom to it
@@ -253,17 +304,26 @@ function onCurrentItemChanged(): void {
     graphComponent.zoomToAnimated(new Point(nodePositionX, nodePositionY), 2)
     
     if (properties && Object.keys(properties).length > 0) {
-      propertyTable.appendChild(propertyTableHeader)
-      // add a table row for each property
-      for (const propertyName of Object.keys(properties)) {
-        const tr = document.createElement('tr')
-        const nameTd = document.createElement('td')
-        nameTd.textContent = propertyName
-        const valueTd = document.createElement('td')
-        valueTd.textContent = properties[propertyName].toString()
-        tr.appendChild(nameTd)
-        tr.appendChild(valueTd)
-        propertyTable.appendChild(tr)
+      // Create a div structure instead of a table for each property
+      const nameElement = document.createElement('h3');
+      nameElement.textContent = node.tag.name;
+      detailsContainer.appendChild(nameElement);
+      
+      for (const [propertyName, propertyValue] of Object.entries(properties)) {
+        const propertyDiv = document.createElement('div');
+        propertyDiv.classList.add('property');
+        
+        const propertyNameDiv = document.createElement('div');
+        propertyNameDiv.classList.add('property-name');
+        propertyNameDiv.textContent = `${propertyName}:`;
+        
+        const propertyValueDiv = document.createElement('div');
+        propertyValueDiv.classList.add('property-value');
+        propertyValueDiv.textContent = propertyValue.toString();
+        
+        propertyDiv.appendChild(propertyNameDiv);
+        propertyDiv.appendChild(propertyValueDiv);
+        detailsContainer.appendChild(propertyDiv);
       }
     }
   }

@@ -6,15 +6,29 @@
     --border-color: #e5e7eb;
 }
 
+html{
+    padding: 0 !important;
+}
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.5;
     color: var(--text-color);
     background-color: #f3f4f6;
     margin: 0;
-    padding: 0;
+    
 }
 
+/* getting rid of teh sidebar and top */
+.demo-page__description{
+    visibility: hidden;
+    margin: 0 !important;
+    padding: 0px !important;
+}
+.demo-header{
+    visibility: hidden;
+    margin: 0 !important;
+    padding: 0px !important;
+}
 
 #queryPane {
     /* width: 30%; */
@@ -88,23 +102,3 @@ h2 {
     margin-bottom: 0.5rem;
 }
 
-#labels {
-    color: var(--muted-color);
-}
-
-#propertyTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 0.5rem;
-}
-
-#propertyTable th, #propertyTable td {
-    border: 1px solid var(--border-color);
-    padding: 0.5rem;
-    text-align: left;
-}
-
-#propertyTable th {
-    background-color: #f9fafb;
-    font-weight: bold;
-}

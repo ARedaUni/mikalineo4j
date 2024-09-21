@@ -38,6 +38,8 @@
 
     <link rel="stylesheet" href="../../resources/style/demo.css" />
     <link rel="stylesheet" href="./index.css" />
+    <link rel="stylesheet" href="./propertiesview.css" />
+
     <style>
       #propertyTable {
         width: 100%;
@@ -105,11 +107,28 @@
         margin-top: 10px;
         overflow: auto;
       }
+     
+
+h3 {
+  font-size: 50px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+
+
+/* Styling the status indicator, for example: */
+.status-busy {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+
     </style>
     <script src="../../resources/filesystem-warning.js"></script>
   </head>
   <body>
-    <header class="demo-header">
+    <!-- <header class="demo-header">
       <a
         href="https://www.yworks.com/products/yfiles"
         class="demo-header__y-logo"
@@ -127,7 +146,7 @@
         <show-source-button></show-source-button>
         <fullscreen-button></fullscreen-button>
       </div>
-    </header>
+    </header> -->
 
     <div class="demo-page__toolbar">
       <button data-command="INCREASE_ZOOM"></button>
@@ -136,6 +155,10 @@
       <button data-command="FIT_GRAPH_BOUNDS"></button>
 
       <span class="demo-separator"></span>
+      <label>
+        Search:
+        <input type="search" id="search-box" />
+      </label>
 
       <span style="margin: 0 10px 0 10px">Maximum Node Count:</span>
       <input
@@ -162,7 +185,7 @@
         Reload Data
       </button>
     </div>
-    <aside class="demo-page__description">
+    <!-- <aside class="demo-page__description">
       <div class="demo-description__header">
         <a
           href="https://www.yworks.com/products/yfiles"
@@ -173,7 +196,6 @@
       </div>
       <div class="demo-description__toggle-button" title="Toggle description"></div>
       <div class="demo-description__play-button">Start here</div>
- <!-- the demo sidebar over ehre -->
       <div class="demo-description__content">
         <h1>Neo4j Integration Demo</h1>
 
@@ -244,7 +266,7 @@
           enabled.
         </p>
       </div>
-    </aside>
+    </aside> -->
     <div class="demo-page__main">
       <div id="loginPane">
         <div id="login">
@@ -332,7 +354,7 @@
           </div>
           <div style="padding: 10px 29px">
             <div id="selected-node-container" hidden="">
-              <h2>Selected Node</h2>
+              <!-- <h2>Selected Node</h2>
               <h3>Labels</h3>
               <p id="labels">None.</p>
               <h3>Properties</h3>
@@ -343,7 +365,10 @@
                     <th>Value</th>
                   </tr>
                 </tbody>
-              </table>
+              </table> -->
+              <div id="labelsContainer"></div>
+              <div id="detailsContainer"></div>
+
             </div>
           </div>
         </div>
